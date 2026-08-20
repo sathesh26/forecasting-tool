@@ -127,6 +127,8 @@ const App = {
     },
 
     updateSeries() {
+        this.state.dateCol = document.getElementById('dateCol').value;
+        this.state.valueCol = document.getElementById('valueCol').value;
         const { dates, values } = DataLoader.extractSeries(this.state.rawData, this.state.dateCol, this.state.valueCol);
         this.state.dates = dates; this.state.values = values;
         this.state.frequency = Utils.detectFrequency(dates.map(d => Utils.formatDate(d)));
