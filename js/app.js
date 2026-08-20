@@ -116,6 +116,7 @@ const App = {
         this.state.frequency = Utils.detectFrequency(dates.map(d => Utils.formatDate(d)));
         this.populateConfig();
         this.showStep2();
+        this.onColumnChange();
         document.getElementById('step2Card').scrollIntoView({ behavior: 'smooth', block: 'start' });
     },
 
