@@ -20,6 +20,8 @@ const App = {
         document.getElementById('btnSampleExcel').addEventListener('click', (e) => { e.stopPropagation(); DataLoader.downloadSampleExcel(); });
         document.getElementById('btnTrySample').addEventListener('click', (e) => { e.stopPropagation(); this.loadSample(); });
         document.getElementById('btnRunForecast').addEventListener('click', () => this.runForecast());
+        document.getElementById('valueCol').addEventListener('change', () => this.onColumnChange());
+        document.getElementById('dateCol').addEventListener('change', () => this.onColumnChange());
         document.getElementById('btnExportCsv').addEventListener('click', () => this.exportCsv());
         document.getElementById('resultModelSelect').addEventListener('change', (e) => this.updateForecastChart(e.target.value));
         document.getElementById('menuToggle').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); this.toggleOverlay(); });
@@ -114,9 +116,6 @@ const App = {
         this.state.frequency = Utils.detectFrequency(dates.map(d => Utils.formatDate(d)));
         this.populateConfig();
         this.showStep2();
-        this.renderPreview();
-        this.showSection('section-preview');
-        this.enableNav('preview');
         document.getElementById('step2Card').scrollIntoView({ behavior: 'smooth', block: 'start' });
     },
 
@@ -135,6 +134,18 @@ const App = {
     },
 
     showStep2() { document.getElementById('step2Card').classList.remove('hidden'); },
+
+    onColumnChange() {
+        this.state.dateCol = document.getElementById('dateCol').value;
+        this.state.valueCol = document.getElementById('valueCol').value;
+        const { dates, values } = DataLoader.extractSeries(this.state.rawData, this.state.dateCol, this.state.valueCol);
+        this.state.dates = dates;
+        this.state.values = values;
+        this.state.frequency = Utils.detectFrequency(dates.map(d => Utils.formatDate(d)));
+        this.renderPreview();
+        this.showSection('section-preview');
+        this.enableNav('preview');
+    },
 
     renderPreview() {
         const { values, dates, columns } = this.state;
