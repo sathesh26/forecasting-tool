@@ -12,7 +12,7 @@ const Charts = {
             data: { labels, datasets: [{ label: 'Actual ' + (colName || ''), data: values, borderColor: '#9333ea', backgroundColor: 'rgba(147,51,234,.08)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#9333ea', borderWidth: 2 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top', labels: { usePointStyle: true, font: { size: 12 } } },
                 tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + (ctx.parsed.y !== null ? ctx.parsed.y.toFixed(2) : ''); } } }
-            }, scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 12, font: { size: 11 } } }, y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } } } }
+            }, scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 12, font: { size: 11 } } }, y: { grid: { display: false }, ticks: { font: { size: 11 } } } } }
         });
     },
 
@@ -28,7 +28,7 @@ const Charts = {
                 { label: 'MAE', data: maeVals, backgroundColor: bg, borderColor: bc, borderWidth: 1, borderRadius: 3 },
                 { label: 'RMSE', data: rmseVals, backgroundColor: bg.map(c => c.replace('.7)', '.35)')), borderColor: bc, borderWidth: 1, borderRadius: 3 }
             ] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { usePointStyle: true, font: { size: 12 } } } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } }, y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } } } }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { usePointStyle: true, font: { size: 12 } } } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } }, y: { grid: { display: false }, ticks: { font: { size: 11 } } } } }
         });
     },
 
@@ -60,7 +60,7 @@ const Charts = {
                 plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', font: { size: 10 } } },
                     tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + (ctx.parsed.y !== null ? ctx.parsed.y.toFixed(2) : ''); } } }
                 },
-                scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 18, font: { size: 9 }, maxRotation: 45 } }, y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } } }
+                scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 18, font: { size: 9 }, maxRotation: 45 } }, y: { grid: { display: false }, ticks: { font: { size: 11 } } } }
             }
         });
     }
