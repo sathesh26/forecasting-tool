@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Forecasting Tool</title>
+    <meta name="description" content="Upload historical data, test multiple forecasting models, compare accuracy, and generate future forecasts — all processed locally in your browser."/>
+    <meta name="author" content="Sathesh"/>
+    <meta name="keywords" content="forecasting,time series,ARIMA,Holt-Winters,demand forecast,exponential smoothing"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="css/styles.css"/>
+    <script src="lib/papaparse.min.js"></script>
+    <script src="lib/xlsx.full.min.js"></script>
+    <script src="lib/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-gradient"></div>
+            <div class="header-inner">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    </button>
+                    <div class="logo">
+                        <div class="logo-icon">FT</div>
+                        <div class="logo-text">
+                            <span class="logo-label">Predictive</span>
+                            <span class="logo-name">Forecasting Tool</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-ghost" id="btnGuide" title="User Guide">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
+                        Guide
+                    </button>
+                    <a href="mailto:sathesh26@gmail.com" class="btn btn-ghost" title="Get in touch">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                        Contact
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <div class="layout">
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-inner">
+                    <nav class="sidebar-nav">
+                        <button class="nav-item active" data-view="workspace">
+                            <span class="nav-icon icon-active-purple">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                            </span>
+                            Workspace
+                        </button>
+                        <button class="nav-item" data-view="preview">
+                            <span class="nav-icon">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+                            </span>
+                            Data Preview
+                        </button>
+                        <button class="nav-item disabled" data-view="comparison" id="navComparison" title="Run a forecast first">
+                            <span class="nav-icon">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M21 9H3"/><path d="M21 15H3"/></svg>
+                            </span>
+                            Model Comparison
+                        </button>
+                        <button class="nav-item disabled" data-view="results" id="navResults" title="Run a forecast first">
+                            <span class="nav-icon">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                            </span>
+                            Forecast Results
+                        </button>
+                        <button class="nav-item" data-view="guide">
+                            <span class="nav-icon">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
+                            </span>
+                            Guide
+                        </button>
+                        <button class="nav-item" data-view="about">
+                            <span class="nav-icon">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                            </span>
+                            About
+                        </button>
+                    </nav>
+                    <div class="sidebar-card sidebar-workflow">
+                        <p class="sidebar-card-title">How It Works</p>
+                        <ol>
+                            <li>Upload your data</li>
+                            <li>Set up parameters</li>
+                            <li>Review data quality</li>
+                            <li>Execute models</li>
+                            <li>Evaluate results</li>
+                            <li>Download forecast</li>
+                        </ol>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="main" id="mainContent">
+                <div class="hero hero-alt">
+                    <div class="hero-bg-circle hero-bg-1"></div>
+                    <div class="hero-bg-circle hero-bg-2"></div>
+                    <div class="hero-content">
+                        <div class="hero-badge">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sparkle-icon"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+                            Predictive Analytics Made Simple
+                        </div>
+                        <h1>Your Forecasting Workspace</h1>
+                        <p>Drop in your historical data, let the engine try several forecasting methods, compare how they perform, and download the projections &mdash; all running right inside your browser.</p>
+                    </div>
+                </div>
+
+                <div class="workflow-steps">
+                    <span class="step"><span class="step-num sn-purple">1</span><span class="step-label">Upload</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="step-arrow"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                    <span class="step"><span class="step-num sn-blue">2</span><span class="step-label">Configure</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="step-arrow"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                    <span class="step"><span class="step-num sn-cyan">3</span><span class="step-label">Validate</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="step-arrow"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                    <span class="step"><span class="step-num sn-emerald">4</span><span class="step-label">Run</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="step-arrow"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                    <span class="step"><span class="step-num sn-violet">5</span><span class="step-label">Compare</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="step-arrow"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                    <span class="step"><span class="step-num sn-amber">6</span><span class="step-label">Export</span></span>
+                </div>
+
+                <div class="card" id="step1Card">
+                    <div class="card-header">
+                        <div>
+                            <h2><span class="step-num-inline sn-purple">1</span>Upload Your Data</h2>
+                            <p class="card-subtitle">CSV or Excel &middot; max 5 MB &middot; processed entirely in your browser</p>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-secondary" id="btnSampleCsv">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                                Sample CSV
+                            </button>
+                            <button class="btn btn-secondary" id="btnSampleExcel">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                                Sample Excel
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="upload-zone" id="uploadZone">
+                            <span class="upload-icon upload-icon-violet">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 13v8"/><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="m8 17 4-4 4 4"/></svg>
+                            </span>
+                            <p class="upload-text">Drop your file here to get started</p>
+                            <p class="upload-subtext">or <span class="upload-browse">browse your files</span> (.csv, .xlsx, .xls)</p>
+                            <span class="upload-lock">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                Not saved &middot; not transmitted
+                            </span>
+                            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,text/csv" hidden/>
+                        </div>
+                        <div class="sample-banner sample-banner-alt">
+                            <div class="sample-banner-left">
+                                <span class="sample-banner-icon sample-icon-emerald">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+                                </span>
+                                <div>
+                                    <p class="sample-banner-title">Just exploring? Give it a spin with sample data</p>
+                                    <p class="sample-banner-desc">A 36-month workforce dataset so you can see the full pipeline in action.</p>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" id="btnTrySample">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+                                Load Sample Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card hidden" id="step2Card">
+                    <div class="card-header">
+                        <div>
+                            <h2><span class="step-num-inline sn-blue">2</span>Set Up Your Forecast</h2>
+                            <p class="card-subtitle">Pick your columns and tune the parameters</p>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="config-grid">
+                            <div class="form-group"><label>Date Column</label><select id="dateCol"></select></div>
+                            <div class="form-group"><label>Value Column</label><select id="valueCol"></select></div>
+                            <div class="form-group"><label>Forecast Horizon</label><input type="number" id="horizon" value="12" min="1" max="120"/></div>
+                            <div class="form-group"><label>Seasonal Period</label><select id="seasonalPeriod"><option value="0">None</option><option value="7">Weekly (7)</option><option value="12" selected>Monthly (12)</option><option value="4">Quarterly (4)</option><option value="52">Weekly (52)</option></select></div>
+                            <div class="form-group"><label>Data Frequency</label><select id="frequency"><option value="auto">Auto-detect</option><option value="D">Daily</option><option value="W">Weekly</option><option value="M" selected>Monthly</option><option value="Q">Quarterly</option><option value="Y">Yearly</option></select></div>
+                        </div>
+                        <div class="form-group" style="margin-top:1rem">
+                            <label>Select Models</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox"><input type="checkbox" checked data-model="naive"/> Naive Forecast</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="seasonal_naive"/> Seasonal Naive</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="moving_average"/> Moving Average</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="weighted_ma"/> Weighted Moving Average</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="ses"/> Simple Exp. Smoothing</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="holt"/> Holt's Linear Trend</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="hw_add"/> Holt-Winters Additive</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="hw_mult"/> Holt-Winters Multiplicative</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="linear_reg"/> Linear Regression</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="poly_reg"/> Polynomial Regression</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="arima"/> ARIMA</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="sarima"/> SARIMA</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="ets"/> ETS</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="prophet"/> Prophet-style Decomposition</label>
+                                <label class="checkbox"><input type="checkbox" checked data-model="theta"/> Theta Method</label>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary btn-run" id="btnRunForecast">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                Execute Forecast
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card hidden" id="stepProgress">
+                    <div class="card-body" style="text-align:center;padding:2rem">
+                        <div class="spinner spinner-violet"></div>
+                        <p style="margin-top:1rem;font-weight:600;color:var(--text-primary)">Crunching the numbers...</p>
+                        <p style="margin-top:0.25rem;color:var(--text-muted);font-size:0.875rem" id="progressText">Preparing your data for analysis</p>
+                    </div>
+                </div>
+
+                <!-- DATA PREVIEW -->
+                <div class="hidden" id="section-preview">
+                    <div class="card">
+                        <div class="card-header"><h2>Data Overview</h2></div>
+                        <div class="card-body">
+                            <p style="margin-bottom:1rem;color:var(--text-muted);font-size:0.875rem">A quick look at what you uploaded before we run the models.</p>
+                            <div class="stats-grid" id="dataStats"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h2>Raw Data</h2></div>
+                        <div class="card-body table-wrap">
+                            <table class="data-table"><thead id="dataTableHead"></thead><tbody id="dataTableBody"></tbody></table>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h2>Visual Preview</h2></div>
+                        <div class="card-body"><canvas id="dataChart" height="300"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- MODEL COMPARISON -->
+                <div class="hidden" id="section-comparison">
+                    <div class="card">
+                        <div class="card-header"><h2>Model Comparison</h2></div>
+                        <div class="card-body">
+                            <p style="margin-bottom:1rem;color:var(--text-muted);font-size:0.875rem">Side-by-side accuracy breakdown so you can pick the best fit.</p>
+                            <div class="table-wrap">
+                                <table class="data-table" id="comparisonTable">
+                                    <thead><tr><th>Model</th><th>MAE</th><th>RMSE</th><th>MAPE (%)</th><th>R&sup2;</th></tr></thead>
+                                    <tbody id="comparisonBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h2>Error Comparison</h2></div>
+                        <div class="card-body"><canvas id="comparisonChart" height="300"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- FORECAST RESULTS -->
+                <div class="hidden" id="section-results">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Projection Chart</h2>
+                            <div class="card-actions"><select id="resultModelSelect" class="select-inline"></select></div>
+                        </div>
+                        <div class="card-body"><canvas id="forecastChart" height="350"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><div><h2>Recommended Forecast</h2><p class="card-subtitle">Best model selected by lowest RMSE</p></div></div>
+                        <div class="card-body">
+                            <div class="results-grid">
+                                <div class="result-card result-recommended" id="resultRecommended">
+                                    <div class="result-card-header"><span class="result-label">Recommended Model</span><span class="result-model" id="recModelName">--</span></div>
+                                    <div class="result-card-body"><div class="rec-metric"><span class="rec-metric-label">Lowest RMSE</span><span class="rec-metric-value" id="recRMSE">--</span></div></div>
+                                </div>
+                                <div class="result-card" id="resultChange"><span class="result-label">Expected Change</span><span class="result-big" id="resultChangePct">--</span><span class="result-sub" id="resultChangeDesc">--</span></div>
+                                <div class="result-card" id="resultTrend"><span class="result-label">Detected Trend</span><span class="result-big" id="resultTrendDir">--</span><span class="result-sub" id="resultTrendDesc">--</span></div>
+                                <div class="result-card" id="resultSeason"><span class="result-label">Seasonality</span><span class="result-big" id="resultSeasonInfo">--</span><span class="result-sub" id="resultSeasonDesc">--</span></div>
+                            </div>
+                            <div class="results-grid-3">
+                                <div class="result-card-sm"><span class="result-label">Data Quality</span><div class="quality-bar"><div class="quality-fill" id="qualityFill"></div></div><span class="result-big" id="qualityScore">--</span><span class="result-sub" id="qualityAnomalies">--</span></div>
+                                <div class="result-card-sm"><span class="result-label">Historical Average</span><span class="result-big" id="histAvg">--</span><span class="result-sub" id="histObs">--</span></div>
+                                <div class="result-card-sm"><span class="result-label">Forecast Average</span><span class="result-big" id="forecastAvg">--</span><span class="result-sub" id="forecastPeriods">--</span></div>
+                            </div>
+                            <div class="results-grid-3">
+                                <div class="result-card-sm"><span class="result-label">Peak Forecast</span><span class="result-big result-peak" id="peakForecast">--</span><span class="result-sub" id="peakDate">--</span></div>
+                                <div class="result-card-sm"><span class="result-label">Lowest Forecast</span><span class="result-big result-low" id="lowForecast">--</span><span class="result-sub" id="lowDate">--</span></div>
+                                <div class="result-card-sm"><span class="result-label">Anomalies</span><span class="result-big" id="anomalyCount">--</span><span class="result-sub">potential outliers detected</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card" id="insightsCard">
+                        <div class="card-header"><h2>Automated Insights</h2></div>
+                        <div class="card-body" id="insightsBody"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Detailed Numbers</h2>
+                            <div class="card-actions">
+                                <button class="btn btn-primary" id="btnExportCsv">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                                    Download CSV
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body table-wrap">
+                            <table class="data-table" id="forecastTable">
+                                <thead id="forecastHead"><tr><th>Date</th><th>Actual</th></tr></thead>
+                                <tbody id="forecastBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-inner">
+                <div class="footer-cta">
+                    <div class="footer-cta-text">
+                        <p class="footer-cta-title">Enjoyed the tool? Spread the word</p>
+                        <p class="footer-cta-desc">Drop a line at <a href="mailto:sathesh26@gmail.com">sathesh26@gmail.com</a> or connect on LinkedIn for more updates.</p>
+                    </div>
+                    <div class="footer-cta-actions">
+                        <a href="mailto:sathesh26@gmail.com" class="btn btn-secondary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            Email Me
+                        </a>
+                        <a href="https://www.linkedin.com/in/mastermind00181" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                            LinkedIn
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-grid">
+                    <div class="footer-col">
+                        <div class="logo" style="margin-bottom:0.75rem">
+                            <div class="logo-icon" style="width:48px;height:48px;font-size:0.75rem">FT</div>
+                            <div class="logo-text">
+                                <span class="logo-label">Predictive</span>
+                                <span class="logo-name">Forecasting Tool</span>
+                            </div>
+                        </div>
+                        <p style="color:var(--slate-600);font-size:0.875rem">A browser-based forecasting utility built for quick time-series analysis, model comparison, and projection export.</p>
+                    </div>
+                    <div class="footer-col">
+                        <p class="footer-col-title">Quick Links</p>
+                        <ul>
+                            <li><button onclick="App.navigate('guide')">User Guide</button></li>
+                            <li><button onclick="App.navigate('about')">About</button></li>
+                            <li><a href="mailto:sathesh26@gmail.com">Email Support</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <p class="footer-col-title">Privacy &amp; Contact</p>
+                        <ul>
+                            <li><a href="mailto:sathesh26@gmail.com">sathesh26@gmail.com</a></li>
+                            <li><a href="https://www.linkedin.com/in/mastermind00181" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>Forecasts are approximations based on historical patterns. Always apply domain judgment before acting on predictions.</p>
+                    <p>&copy; 2026 Forecasting Tool</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Guide Modal -->
+    <div class="modal-overlay" id="guideModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="guideModalTitle">User Guide</h2>
+                <button class="modal-close" id="modalClose" aria-label="Close">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="guideContent">
+                    <h3>Step 1 &mdash; Import Your Dataset</h3>
+                    <p>Upload a CSV or Excel file containing your historical time series. At a minimum, you'll need one column for dates and another for numeric values.</p>
+                    <p><strong>Supported formats:</strong> .csv, .xlsx, .xls (max 5 MB)</p>
+                    <p>Alternatively, click <em>Load Sample Data</em> to see how everything works with a built-in 36-month workforce dataset.</p>
+
+                    <h3>Step 2 &mdash; Configure the Forecast</h3>
+                    <p>Choose which columns represent dates and values. Then set your forecast horizon (how far ahead to predict), seasonal period, and data frequency. Select the models you'd like to evaluate.</p>
+                    <p><strong>Available forecasting engines:</strong></p>
+                    <ul>
+                        <li><strong>Naive Forecast</strong> &mdash; repeats the last observed value</li>
+                        <li><strong>Seasonal Naive</strong> &mdash; repeats the value from the same period last cycle</li>
+                        <li><strong>Moving Average</strong> &mdash; averages the most recent observations</li>
+                        <li><strong>Weighted Moving Average</strong> &mdash; gives more importance to recent values</li>
+                        <li><strong>Simple Exponential Smoothing</strong> &mdash; decays older observations exponentially</li>
+                        <li><strong>Holt's Linear Trend</strong> &mdash; models an upward or downward trend</li>
+                        <li><strong>Holt-Winters Additive</strong> &mdash; captures trend plus additive seasonal effects</li>
+                        <li><strong>Holt-Winters Multiplicative</strong> &mdash; captures trend plus proportional seasonal effects</li>
+                        <li><strong>Linear Regression</strong> &mdash; fits a straight line through the data</li>
+                        <li><strong>Polynomial Regression</strong> &mdash; fits a curved line for non-linear patterns</li>
+                        <li><strong>ARIMA</strong> &mdash; autoregressive model on differenced data</li>
+                        <li><strong>SARIMA</strong> &mdash; seasonal autoregressive model</li>
+                        <li><strong>ETS</strong> &mdash; auto-selects the best exponential smoothing variant</li>
+                        <li><strong>Prophet-style Decomposition</strong> &mdash; trend plus additive seasonal decomposition</li>
+                        <li><strong>Theta Method</strong> &mdash; blends long-term trend with short-term smoothing</li>
+                    </ul>
+
+                    <h3>Step 3 &mdash; Review the Data</h3>
+                    <p>Browse the preview table, review the summary statistics, and glance at the chart to confirm everything looks correct before proceeding.</p>
+
+                    <h3>Step 4 &mdash; Run the Models</h3>
+                    <p>Click <em>Execute Forecast</em>. Each selected model runs independently &mdash; all computation happens in your browser, with no server calls.</p>
+
+                    <h3>Step 5 &mdash; Compare Results</h3>
+                    <p>Use MAE, RMSE, MAPE, and R&sup2; metrics to see which model tracks your historical data most accurately. The comparison table highlights the best performer in each category.</p>
+
+                    <h3>Step 6 &mdash; Export Your Forecast</h3>
+                    <p>Download the full projection as a CSV file, including fitted values and all forecast horizons, ready for downstream analysis or reporting.</p>
+
+                    <div class="guide-note">
+                        <strong>Tip:</strong> The recommended model is automatically selected based on the lowest RMSE, giving you a quick starting point for your projections.
+                    </div>
+                </div>
+
+                <div id="aboutContent" style="display:none">
+                    <h3>About This Tool</h3>
+                    <p>This forecasting tool was built to help anyone &mdash; from data analysts to operations planners &mdash; quickly experiment with different time-series models without needing specialized software or sending data to the cloud.</p>
+                    <p>Upload your data, let it try multiple approaches, and walk away with a projection. Simple as that.</p>
+                    <div class="about-links" style="margin-top:1.5rem">
+                        <a href="mailto:sathesh26@gmail.com" class="btn btn-secondary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            Send an Email
+                        </a>
+                        <a href="https://www.linkedin.com/in/mastermind00181" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                            Connect on LinkedIn
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/models.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/data-loader.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
