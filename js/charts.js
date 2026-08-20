@@ -39,7 +39,7 @@ const Charts = {
         const ctx = document.getElementById(canvasId);
         if (!ctx) return;
         const colors = ['#9333ea','#10b981','#0ea5e9','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#f97316','#6366f1','#84cc16','#06b6d4','#e11d48','#a855f7','#22c55e','#eab308'];
-        const datasets = [{ label: 'Actual ' + colName, data: actual, borderColor: '#1e293b', backgroundColor: 'rgba(30,41,59,.04)', fill: false, tension: 0.3, pointRadius: 2, borderWidth: 2.5 }];
+        const datasets = [{ label: 'Actual ' + colName, data: actual, borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,.04)', fill: false, tension: 0.3, pointRadius: 2, borderWidth: 2.5 }];
 
         const forecastLabels = [];
         if (labels.length > 0) {
