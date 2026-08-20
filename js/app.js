@@ -266,10 +266,11 @@ const App = {
         document.getElementById('lowForecast').textContent = Math.min(...best.forecast).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         document.getElementById('lowDate').textContent = Utils.formatDate(Utils.nextDate(lastDate, App.state.frequency, lowIdx + 1));
 
+        const colName = this.state.valueCol;
         const insights = [];
-        if (changePct > 1) insights.push(`Volume is forecasted to <strong>increase by ${changePct.toFixed(1)}%</strong> over the next ${horizon} months.`);
-        else if (changePct < -1) insights.push(`Volume is forecasted to <strong>decrease by ${Math.abs(changePct).toFixed(1)}%</strong> over the next ${horizon} months.`);
-        else insights.push(`Volume is expected to remain <strong>relatively stable</strong> over the next ${horizon} months.`);
+        if (changePct > 1) insights.push(`<strong>${colName}</strong> is forecasted to <strong>increase by ${changePct.toFixed(1)}%</strong> over the next ${horizon} periods.`);
+        else if (changePct < -1) insights.push(`<strong>${colName}</strong> is forecasted to <strong>decrease by ${Math.abs(changePct).toFixed(1)}%</strong> over the next ${horizon} periods.`);
+        else insights.push(`<strong>${colName}</strong> is expected to remain <strong>relatively stable</strong> over the next ${horizon} periods.`);
         if (season.detected) insights.push(`A recurring seasonal pattern was detected (seasonal strength ${season.strength}%).`);
         insights.push(`The <strong>${best.name}</strong> model produced the lowest validation RMSE (${best.rmse.toFixed(2)}).`);
         if (anomalies.count > 0) insights.push(`${anomalies.count} potential ${anomalies.count === 1 ? 'anomaly' : 'anomalies'} detected in the historical data.`);
