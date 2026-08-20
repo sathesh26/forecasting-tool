@@ -181,6 +181,7 @@ const App = {
                 try {
                     this.state.forecastResults = Models.runAll(this.state.values, { horizon, seasonalPeriod: sp, models, hasTrend, hasSeasonality });
                     document.getElementById('stepProgress').classList.add('hidden');
+                    this.renderPreview();
                     this.renderComparison();
                     this.renderResults();
                     this.showSection('section-comparison');
