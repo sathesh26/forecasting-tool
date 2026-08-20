@@ -3,14 +3,16 @@ const Charts = {
 
     destroy(key) { if (this.instances[key]) { this.instances[key].destroy(); delete this.instances[key]; } },
 
-    renderDataChart(canvasId, labels, values) {
+    renderDataChart(canvasId, labels, values, colName) {
         this.destroy('data');
         const ctx = document.getElementById(canvasId);
         if (!ctx) return;
         this.instances.data = new Chart(ctx, {
             type: 'line',
-            data: { labels, datasets: [{ label: 'Actual', data: values, borderColor: '#9333ea', backgroundColor: 'rgba(147,51,234,.08)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#9333ea', borderWidth: 2 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top', labels: { usePointStyle: true, font: { size: 12 } } } }, scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 12, font: { size: 11 } } }, y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } } } }
+            data: { labels, datasets: [{ label: 'Actual ' + (colName || ''), data: values, borderColor: '#9333ea', backgroundColor: 'rgba(147,51,234,.08)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#9333ea', borderWidth: 2 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top', labels: { usePointStyle: true, font: { size: 12 } } },
+                tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + (ctx.parsed.y !== null ? ctx.parsed.y.toFixed(2) : ''); } } }
+            }, scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 12, font: { size: 11 } } }, y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } } } }
         });
     },
 
@@ -30,12 +32,12 @@ const Charts = {
         });
     },
 
-    renderForecastChart(canvasId, labels, actual, results, selectedModel) {
+    renderForecastChart(canvasId, labels, actual, results, selectedModel, colName) {
         this.destroy('forecast');
         const ctx = document.getElementById(canvasId);
         if (!ctx) return;
         const colors = ['#9333ea','#10b981','#0ea5e9','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#f97316','#6366f1','#84cc16','#06b6d4','#e11d48','#a855f7','#22c55e','#eab308'];
-        const datasets = [{ label: 'Actual', data: actual, borderColor: '#1e293b', backgroundColor: 'rgba(30,41,59,.04)', fill: false, tension: 0.3, pointRadius: 2, borderWidth: 2.5 }];
+        const datasets = [{ label: 'Actual ' + colName, data: actual, borderColor: '#1e293b', backgroundColor: 'rgba(30,41,59,.04)', fill: false, tension: 0.3, pointRadius: 2, borderWidth: 2.5 }];
 
         const forecastLabels = [];
         if (labels.length > 0) {
@@ -55,7 +57,9 @@ const Charts = {
             type: 'line',
             data: { labels: fullLabels, datasets },
             options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-                plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', font: { size: 10 } } } },
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', font: { size: 10 } } },
+                    tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + (ctx.parsed.y !== null ? ctx.parsed.y.toFixed(2) : ''); } } }
+                },
                 scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 18, font: { size: 9 }, maxRotation: 45 } }, y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } } }
             }
         });

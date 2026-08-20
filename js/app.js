@@ -157,7 +157,7 @@ const App = {
         ].map(s => `<div class="stat-card"><div class="stat-label">${s.l}</div><div class="stat-value">${s.v}</div></div>`).join('');
         document.getElementById('dataTableHead').innerHTML = `<tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr>`;
         document.getElementById('dataTableBody').innerHTML = this.state.rawData.slice(0, 100).map(row => `<tr>${columns.map(c => `<td>${row[c] ?? ''}</td>`).join('')}</tr>`).join('');
-        try { Charts.renderDataChart('dataChart', dates.map(d => Utils.formatDate(d)), values); } catch (e) { console.warn(e); }
+        try {             Charts.renderDataChart('dataChart', dates.map(d => Utils.formatDate(d)), values, this.state.valueCol); } catch (e) { console.warn(e); }
     },
 
     runForecast() {
@@ -302,7 +302,7 @@ const App = {
         const results = this.state.forecastResults;
         if (!results.length) return;
         try {
-            Charts.renderForecastChart('forecastChart', this.state.dates.map(d => Utils.formatDate(d)), this.state.values, results, selectedModel || null);
+            Charts.renderForecastChart('forecastChart', this.state.dates.map(d => Utils.formatDate(d)), this.state.values, results, selectedModel || null, this.state.valueCol);
         } catch (e) { console.warn(e); }
     },
 
